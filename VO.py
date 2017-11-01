@@ -31,22 +31,29 @@ dataset = pykitti.odometry(basedir, sequences, frames=range(0,1000,1), imformat=
 # dataset.gray:       Generator to load monochrome stereo pairs (cam0, cam1)
 # dataset.rgb:        Generator to load RGB stereo pairs (cam2, cam3)
 # dataset.velo:       Generator to load velodyne scans as [x,y,z,reflectance]
-#pose = iter(itertools.islice(dataset.poses, 1, None))
+pose = iter(itertools.islice(dataset.poses, 1, None))
 gray = iter(dataset.gray)
 cam1 = iter(dataset.cam1)
 rgb = iter(dataset.rgb)
 cam2 = iter(dataset.cam2)
-#velo = iter(itertools.islice(dataset.velo, 2, None))
-for i in range(0,1000,1): 
+time = iter(dataset.timestamps)
+velo = iter(itertools.islice(dataset.velo, 2, None))
+xyzreflectance = list() 
+times = list()
+rgb2 = list()
+for i in range(0,10,1): 
 # Grab some data
-# second_pose = next(pose)
+ second_pose = next(pose)
  first_gray = next(gray)
  first_cam1 = next(cam1)
  first_rgb = next(rgb)
  first_cam2 = next(cam2)
-# third_velo = next(velo)
-
-
+ third_velo = next(velo)
+ stamps = next(time)
+ 
+ rgb2.append(first_rgb)
+ xyzreflectance.append(third_velo)
+ times.append(stamps)
  #Display some of the data
 
  np.set_printoptions(precision=4, suppress=True)
@@ -55,9 +62,9 @@ for i in range(0,1000,1):
 
  print('\nGray stereo pair baseline [m]: ' + str(dataset.calib.b_gray))
  print('\nRGB stereo pair baseline [m]: ' + str(dataset.calib.b_rgb))
-
- print('\nFirst timestamp: ' + str(dataset.timestamps[0]))
-# print('\nSecond ground truth pose:\n' + str(second_pose))
+ 
+ print('\nFirst timestamp: ' + str(stamps))
+ print('\nSecond ground truth pose:\n' + str(second_pose))
 
  f, ax = plt.subplots(2, 2, figsize=(15, 5))
  ax[0, 0].imshow(first_gray[0], cmap='gray')
@@ -75,12 +82,12 @@ for i in range(0,1000,1):
  f2 = plt.figure()
  ax2 = f2.add_subplot(111, projection='3d')
 # Plot every 100th point so things don't get too bogged down
-# velo_range = range(0, third_velo.shape[0], 100)
-# ax2.scatter(third_velo[velo_range, 0],
-#             third_velo[velo_range, 1],
-#             third_velo[velo_range, 2],
-#             c=third_velo[velo_range, 3],
-#             cmap='gray')
-# ax2.set_title('Third Velodyne scan (subsampled)')
+ velo_range = range(0, third_velo.shape[0], 100)
+ ax2.scatter(third_velo[velo_range, 0],
+            third_velo[velo_range, 1],
+             third_velo[velo_range, 2],
+             c=third_velo[velo_range, 3],
+             cmap='gray')
+ ax2.set_title('Third Velodyne scan (subsampled)')
 
  plt.show()
